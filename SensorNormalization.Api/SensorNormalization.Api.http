@@ -1,0 +1,6 @@
+@SensorNormalization.Api_HostAddress = http://localhost:5160
+
+GET {{SensorNormalization.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

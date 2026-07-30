@@ -1,0 +1,25 @@
+﻿services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: sensor-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: sensor-timescaledb
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sensordb
+    volumes:
+      - sensor_pgdata:/var/lib/postgresql/data
+
+volumes:
+  sensor_pgdata:

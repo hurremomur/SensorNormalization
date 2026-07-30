@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorNormalization.Domain", "SensorNormalization.Domain\SensorNormalization.Domain.csproj", "{0CD291EA-ABF7-4AB6-95C1-098EFA358C2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorNormalization.Consumer", "SensorNormalization.Consumer\SensorNormalization.Consumer.csproj", "{3182D2B6-0027-4001-BE69-11C6500E91AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorNormalization.Simulator", "SensorNormalization.Simulator\SensorNormalization.Simulator.csproj", "{8052A6D8-C03A-4A74-B3F0-5D8D57FB53AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorNormalization.Api", "SensorNormalization.Api\SensorNormalization.Api.csproj", "{FB6CCFF0-1110-4931-9236-115015CB745F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0CD291EA-ABF7-4AB6-95C1-098EFA358C2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CD291EA-ABF7-4AB6-95C1-098EFA358C2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CD291EA-ABF7-4AB6-95C1-098EFA358C2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CD291EA-ABF7-4AB6-95C1-098EFA358C2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3182D2B6-0027-4001-BE69-11C6500E91AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3182D2B6-0027-4001-BE69-11C6500E91AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3182D2B6-0027-4001-BE69-11C6500E91AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3182D2B6-0027-4001-BE69-11C6500E91AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8052A6D8-C03A-4A74-B3F0-5D8D57FB53AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8052A6D8-C03A-4A74-B3F0-5D8D57FB53AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8052A6D8-C03A-4A74-B3F0-5D8D57FB53AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8052A6D8-C03A-4A74-B3F0-5D8D57FB53AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB6CCFF0-1110-4931-9236-115015CB745F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB6CCFF0-1110-4931-9236-115015CB745F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB6CCFF0-1110-4931-9236-115015CB745F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB6CCFF0-1110-4931-9236-115015CB745F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
