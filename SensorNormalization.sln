@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorNormalization.Simulat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorNormalization.Api", "SensorNormalization.Api\SensorNormalization.Api.csproj", "{FB6CCFF0-1110-4931-9236-115015CB745F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorNormalization.Tests", "SensorNormalization.Tests\SensorNormalization.Tests.csproj", "{66413BE7-CFC0-4645-9109-9988537A632F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{FB6CCFF0-1110-4931-9236-115015CB745F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB6CCFF0-1110-4931-9236-115015CB745F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB6CCFF0-1110-4931-9236-115015CB745F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66413BE7-CFC0-4645-9109-9988537A632F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66413BE7-CFC0-4645-9109-9988537A632F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66413BE7-CFC0-4645-9109-9988537A632F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66413BE7-CFC0-4645-9109-9988537A632F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
