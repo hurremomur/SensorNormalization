@@ -1,17 +1,26 @@
 ﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using SensorNormalization.Consumer.Application.Parsers;
+using SensorNormalization.Consumer.Application.Repositories;
 using SensorNormalization.Consumer.Consumers;
-using SensorNormalization.Consumer.Parsers;
+using SensorNormalization.Consumer.Infrastructure.Contexts;
 
 var builder = Host.CreateApplicationBuilder(args);
 
+// --- Veritabani (EF Core + PostgreSQL/TimescaleDB) ---
+builder.Services.AddDbContext<SensorDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("SensorDb")));
+
+// --- Repository ---
+builder.Services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
+
 // --- Parser kayitlari (Strategy deseni) ---
-// Her parser ISensorPayloadParser olarak kaydedilir; DI hepsini bir liste
-// halinde factory''ye enjekte eder. Yeni format = yeni satir, gerisi degismez.
 builder.Services.AddSingleton<ISensorPayloadParser, JsonTemperatureParser>();
 builder.Services.AddSingleton<ISensorPayloadParser, XmlHumidityParser>();
 builder.Services.AddSingleton<ISensorPayloadParser, CsvPressureParser>();
 builder.Services.AddSingleton<SensorPayloadParserFactory>();
 
+// --- MassTransit + RabbitMQ ---
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<SensorRawReadingConsumer>();

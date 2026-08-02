@@ -1,4 +1,4 @@
-﻿using SensorNormalization.Consumer.Parsers;
+using SensorNormalization.Consumer.Application.Parsers;
 using SensorNormalization.Domain.Entities;
 using SensorNormalization.Domain.Messages;
 using Xunit;
@@ -38,7 +38,7 @@ public class XmlHumidityParserTests
 
         SensorReading result = _parser.Parse(msg);
 
-        Assert.Equal(new DateTime(2026, 7, 30, 6, 32, 53, DateTimeKind.Utc), result.TimestampUtc);
+        Assert.Equal(new DateTime(2026, 7, 30, 6, 32, 53, DateTimeKind.Utc), result.Time);
     }
 
     [Fact]

@@ -1,8 +1,8 @@
-﻿using System.Globalization;
+using System.Globalization;
 using SensorNormalization.Domain.Entities;
 using SensorNormalization.Domain.Messages;
 
-namespace SensorNormalization.Consumer.Parsers;
+namespace SensorNormalization.Consumer.Application.Parsers;
 
 // Basinc sensorunun CSV verisini okuyup normalize eden parser.
 // Ham ornek (iki satir: baslik + deger):
@@ -61,7 +61,7 @@ public class CsvPressureParser : ISensorPayloadParser
             SensorType = SensorType.Pressure,
             Value = Math.Round(value, 2),
             Unit = normalizedUnit,
-            TimestampUtc = timestampUtc,
+            Time = timestampUtc,
             SourceFormat = PayloadFormat.Csv
         };
     }

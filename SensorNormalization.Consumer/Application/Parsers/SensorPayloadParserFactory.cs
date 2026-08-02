@@ -1,6 +1,6 @@
-﻿using SensorNormalization.Domain.Messages;
+using SensorNormalization.Domain.Messages;
 
-namespace SensorNormalization.Consumer.Parsers;
+namespace SensorNormalization.Consumer.Application.Parsers;
 
 // Gelen mesajin formatina gore dogru parseri secen fabrika (Strategy secici).
 // Tum parserlar disaridan (dependency injection ile) verilir; fabrika

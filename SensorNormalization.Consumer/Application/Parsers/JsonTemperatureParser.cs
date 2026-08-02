@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using SensorNormalization.Domain.Entities;
 using SensorNormalization.Domain.Messages;
 
-namespace SensorNormalization.Consumer.Parsers;
+namespace SensorNormalization.Consumer.Application.Parsers;
 
 // Sicaklik sensorunun JSON verisini okuyup normalize eden parser.
 // Ham ornek: {"sensor_id":"TEMP-01","reading_fahrenheit":84.8,"ts_unix":1785393173}
@@ -46,7 +46,7 @@ public class JsonTemperatureParser : ISensorPayloadParser
             SensorType = SensorType.Temperature,
             Value = celsius,
             Unit = "C",
-            TimestampUtc = timestampUtc,
+            Time = timestampUtc,
             SourceFormat = PayloadFormat.Json
         };
     }

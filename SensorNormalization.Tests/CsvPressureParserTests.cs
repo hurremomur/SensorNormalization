@@ -1,4 +1,4 @@
-﻿using SensorNormalization.Consumer.Parsers;
+using SensorNormalization.Consumer.Application.Parsers;
 using SensorNormalization.Domain.Entities;
 using SensorNormalization.Domain.Messages;
 using Xunit;

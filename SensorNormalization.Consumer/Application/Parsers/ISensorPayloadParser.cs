@@ -1,7 +1,7 @@
-﻿using SensorNormalization.Domain.Entities;
+using SensorNormalization.Domain.Entities;
 using SensorNormalization.Domain.Messages;
 
-namespace SensorNormalization.Consumer.Parsers;
+namespace SensorNormalization.Consumer.Application.Parsers;
 
 // Tum formata ozel parserlarin uydugu ortak sozlesme (Strategy deseni).
 // Her parser hangi formati isledigini bildirir ve ham metni

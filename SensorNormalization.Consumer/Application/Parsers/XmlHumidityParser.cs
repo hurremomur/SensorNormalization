@@ -1,9 +1,9 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Xml.Linq;
 using SensorNormalization.Domain.Entities;
 using SensorNormalization.Domain.Messages;
 
-namespace SensorNormalization.Consumer.Parsers;
+namespace SensorNormalization.Consumer.Application.Parsers;
 
 // Nem sensorunun XML verisini okuyup normalize eden parser.
 // Ham ornek:
@@ -54,7 +54,7 @@ public class XmlHumidityParser : ISensorPayloadParser
             SensorType = SensorType.Humidity,
             Value = Math.Round(percentage, 2),
             Unit = "%",
-            TimestampUtc = timestampUtc,
+            Time = timestampUtc,
             SourceFormat = PayloadFormat.Xml
         };
     }

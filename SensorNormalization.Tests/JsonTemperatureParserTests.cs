@@ -1,4 +1,4 @@
-﻿using SensorNormalization.Consumer.Parsers;
+using SensorNormalization.Consumer.Application.Parsers;
 using SensorNormalization.Domain.Entities;
 using SensorNormalization.Domain.Messages;
 using Xunit;
@@ -41,7 +41,7 @@ public class JsonTemperatureParserTests
         SensorReading result = _parser.Parse(msg);
 
         // ts_unix=0 => 1970-01-01T00:00:00Z
-        Assert.Equal(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc), result.TimestampUtc);
+        Assert.Equal(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc), result.Time);
         Assert.Equal(0, result.Value); // 32F = 0C
     }
 
