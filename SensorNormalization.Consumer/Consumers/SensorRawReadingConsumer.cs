@@ -1,6 +1,6 @@
 ﻿using MassTransit;
 using SensorNormalization.Consumer.Application.Parsers;
-using SensorNormalization.Consumer.Application.Repositories;
+using SensorNormalization.Consumer.Application.Services.Abstract;
 using SensorNormalization.Domain.Entities;
 using SensorNormalization.Domain.Messages;
 
@@ -10,16 +10,16 @@ public class SensorRawReadingConsumer : IConsumer<SensorRawReadingMessage>
 {
     private readonly ILogger<SensorRawReadingConsumer> _logger;
     private readonly SensorPayloadParserFactory _parserFactory;
-    private readonly ISensorReadingRepository _repository;
+    private readonly ISensorReadingService _service;
 
     public SensorRawReadingConsumer(
         ILogger<SensorRawReadingConsumer> logger,
         SensorPayloadParserFactory parserFactory,
-        ISensorReadingRepository repository)
+        ISensorReadingService service)
     {
         _logger = logger;
         _parserFactory = parserFactory;
-        _repository = repository;
+        _service = service;
     }
 
     public async Task Consume(ConsumeContext<SensorRawReadingMessage> context)
@@ -32,12 +32,11 @@ public class SensorRawReadingConsumer : IConsumer<SensorRawReadingMessage>
             ISensorPayloadParser parser = _parserFactory.GetParser(message.Format);
             SensorReading reading = parser.Parse(message);
 
-            // 2) Denetim alanlarini doldur.
+            // 2) Ham veriyi sakla (denetim/yeniden isleme icin).
             reading.RawPayload = message.Payload;
-            reading.ReceivedAtUtc = DateTime.UtcNow;
 
-            // 3) Veritabanina yaz.
-            await _repository.AddAsync(reading, context.CancellationToken);
+            // 3) Is katmanina devret (servis repository''e yazar).
+            await _service.SaveAsync(reading, context.CancellationToken);
 
             // 4) Basarili sonucu logla.
             _logger.LogInformation(

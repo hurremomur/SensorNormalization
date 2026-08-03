@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using SensorNormalization.Consumer.Application.Parsers;
 using SensorNormalization.Consumer.Application.Repositories;
+using SensorNormalization.Consumer.Application.Services.Abstract;
+using SensorNormalization.Consumer.Application.Services.Concrete;
 using SensorNormalization.Consumer.Consumers;
 using SensorNormalization.Consumer.Infrastructure.Contexts;
 
@@ -11,8 +13,9 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddDbContext<SensorDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("SensorDb")));
 
-// --- Repository ---
+// --- Repository + Service katmanlari ---
 builder.Services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
+builder.Services.AddScoped<ISensorReadingService, SensorReadingService>();
 
 // --- Parser kayitlari (Strategy deseni) ---
 builder.Services.AddSingleton<ISensorPayloadParser, JsonTemperatureParser>();
