@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace SensorNormalization.Consumer.Migrations
+namespace SensorNormalization.Application.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

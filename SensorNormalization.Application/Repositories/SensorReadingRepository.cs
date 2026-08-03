@@ -1,7 +1,7 @@
-﻿using SensorNormalization.Consumer.Infrastructure.Contexts;
+using SensorNormalization.Application.Infrastructure.Contexts;
 using SensorNormalization.Domain.Entities;
 
-namespace SensorNormalization.Consumer.Application.Repositories;
+namespace SensorNormalization.Application.Repositories;
 
 // ISensorReadingRepository''nin EF Core (TimescaleDB) uygulamasi.
 public class SensorReadingRepository : ISensorReadingRepository

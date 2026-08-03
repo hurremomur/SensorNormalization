@@ -1,8 +1,8 @@
-﻿using SensorNormalization.Consumer.Application.Repositories;
-using SensorNormalization.Consumer.Application.Services.Abstract;
+using SensorNormalization.Application.Repositories;
+using SensorNormalization.Application.Services.Abstract;
 using SensorNormalization.Domain.Entities;
 
-namespace SensorNormalization.Consumer.Application.Services.Concrete;
+namespace SensorNormalization.Application.Services.Concrete;
 
 // ISensorReadingService uygulamasi.
 // Kalici yazma oncesi denetim alanini (ReceivedAtUtc) doldurur, sonra repository''e delege eder.

@@ -22,5 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SensorNormalization.Domain\SensorNormalization.Domain.csproj" />
+    <ProjectReference Include="..\SensorNormalization.Application\SensorNormalization.Application.csproj" />
   </ItemGroup>
 </Project>

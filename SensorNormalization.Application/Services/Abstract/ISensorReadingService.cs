@@ -1,6 +1,6 @@
-﻿using SensorNormalization.Domain.Entities;
+using SensorNormalization.Domain.Entities;
 
-namespace SensorNormalization.Consumer.Application.Services.Abstract;
+namespace SensorNormalization.Application.Services.Abstract;
 
 // Normalize edilmis okumanin is katmani sozlesmesi.
 // Consumer dogrudan repository''e degil, bu servise konusur.

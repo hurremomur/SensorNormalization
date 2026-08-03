@@ -1,6 +1,6 @@
-﻿using MassTransit;
+using MassTransit;
 using SensorNormalization.Consumer.Application.Parsers;
-using SensorNormalization.Consumer.Application.Services.Abstract;
+using SensorNormalization.Application.Services.Abstract;
 using SensorNormalization.Domain.Entities;
 using SensorNormalization.Domain.Messages;
 

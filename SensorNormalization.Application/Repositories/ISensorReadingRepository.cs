@@ -1,6 +1,6 @@
-﻿using SensorNormalization.Domain.Entities;
+using SensorNormalization.Domain.Entities;
 
-namespace SensorNormalization.Consumer.Application.Repositories;
+namespace SensorNormalization.Application.Repositories;
 
 // Normalize edilmis okumalarin kalici olarak saklanmasindan sorumlu katman.
 // Consumer dogrudan veritabanini degil, bu soyutlamayi kullanir.

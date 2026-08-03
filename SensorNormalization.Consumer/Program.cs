@@ -1,11 +1,11 @@
-﻿using MassTransit;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using SensorNormalization.Consumer.Application.Parsers;
-using SensorNormalization.Consumer.Application.Repositories;
-using SensorNormalization.Consumer.Application.Services.Abstract;
-using SensorNormalization.Consumer.Application.Services.Concrete;
+using SensorNormalization.Application.Repositories;
+using SensorNormalization.Application.Services.Abstract;
+using SensorNormalization.Application.Services.Concrete;
 using SensorNormalization.Consumer.Consumers;
-using SensorNormalization.Consumer.Infrastructure.Contexts;
+using SensorNormalization.Application.Infrastructure.Contexts;
 
 var builder = Host.CreateApplicationBuilder(args);
 

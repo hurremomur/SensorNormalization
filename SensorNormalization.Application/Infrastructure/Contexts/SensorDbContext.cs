@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SensorNormalization.Domain.Entities;
 
-namespace SensorNormalization.Consumer.Infrastructure.Contexts;
+namespace SensorNormalization.Application.Infrastructure.Contexts;
 
-// Uygulamanin veritabani ile konustugu koprü (EF Core DbContext).
+// Uygulamanin veritabani ile konustugu kopr� (EF Core DbContext).
 public class SensorDbContext : DbContext
 {
     public SensorDbContext(DbContextOptions<SensorDbContext> options)

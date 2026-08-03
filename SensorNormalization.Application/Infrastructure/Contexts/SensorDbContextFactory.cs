@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace SensorNormalization.Consumer.Infrastructure.Contexts;
+namespace SensorNormalization.Application.Infrastructure.Contexts;
 
 // Sadece tasarim zamani (dotnet ef migrations/database) icin kullanilir.
 // Uygulama calisirken devrede degildir; o zaman DI ayarlari saglar.
