@@ -1,4 +1,4 @@
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using SensorNormalization.Consumer.Application.Parsers;
 using SensorNormalization.Application.Repositories;
@@ -38,6 +38,13 @@ builder.Services.AddMassTransit(x =>
 
         cfg.ReceiveEndpoint("sensor-readings-queue", e =>
         {
+            // GECICI hatalar icin retry: 3 deneme, artan aralikla (1s, 2s, 5s).
+            // Retry tukenirse mesaj otomatik "sensor-readings-queue_error" kuyruguna duser.
+            e.UseMessageRetry(r => r.Intervals(
+                TimeSpan.FromSeconds(1),
+                TimeSpan.FromSeconds(2),
+                TimeSpan.FromSeconds(5)));
+
             e.ConfigureConsumer<SensorRawReadingConsumer>(context);
         });
     });

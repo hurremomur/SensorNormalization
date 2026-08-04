@@ -1,4 +1,4 @@
-using MassTransit;
+﻿using MassTransit;
 using SensorNormalization.Consumer.Application.Parsers;
 using SensorNormalization.Application.Services.Abstract;
 using SensorNormalization.Domain.Entities;
@@ -26,30 +26,34 @@ public class SensorRawReadingConsumer : IConsumer<SensorRawReadingMessage>
     {
         var message = context.Message;
 
+        SensorReading reading;
+
+        // --- 1) KALICI HATA BOLGESI: parse/normalize ---
+        // Bozuk veri retry ile duzelmez. Hatayi burada yakalayip loglariz ve
+        // mesaji "tuketildi" sayariz (retry'a sokmayiz). Boyle mesajlar isteniyorsa
+        // ayri bir gecersiz-veri kuyruguna da yonlendirilebilir.
         try
         {
-            // 1) Formata gore parseri sec ve normalize et.
             ISensorPayloadParser parser = _parserFactory.GetParser(message.Format);
-            SensorReading reading = parser.Parse(message);
-
-            // 2) Ham veriyi sakla (denetim/yeniden isleme icin).
+            reading = parser.Parse(message);
             reading.RawPayload = message.Payload;
-
-            // 3) Is katmanina devret (servis repository''e yazar).
-            await _service.SaveAsync(reading, context.CancellationToken);
-
-            // 4) Basarili sonucu logla.
-            _logger.LogInformation(
-                "Kaydedildi -> {SensorId} | {Type} | {Value} {Unit} | {Time:o} | kaynak={Source}",
-                reading.SensorId, reading.SensorType, reading.Value, reading.Unit,
-                reading.Time, reading.SourceFormat);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is FormatException or NotSupportedException)
         {
-            // 5) Bozuk/gecersiz veri: sistemi durdurma, uyari logla ve devam et.
             _logger.LogWarning(
-                "Mesaj islenemedi (atlandi) -> {SensorId} | {Format} | Hata: {Error} | Ham: {Payload}",
+                "Gecersiz veri (retry edilmez) -> {SensorId} | {Format} | Hata: {Error} | Ham: {Payload}",
                 message.SensorId, message.Format, ex.Message, message.Payload);
+            return; // mesaj tuketildi; retry yok, error queue yok (kalici bozuk).
         }
+
+        // --- 2) GECICI HATA BOLGESI: veritabanina yaz ---
+        // DB/ag gibi gecici hatalar burada firlar; Consume disari exception verir,
+        // MassTransit retry uygular, tukenirse mesaj otomatik _error kuyruguna duser.
+        await _service.SaveAsync(reading, context.CancellationToken);
+
+        _logger.LogInformation(
+            "Kaydedildi -> {SensorId} | {Type} | {Value} {Unit} | {Time:o} | kaynak={Source}",
+            reading.SensorId, reading.SensorType, reading.Value, reading.Unit,
+            reading.Time, reading.SourceFormat);
     }
 }
