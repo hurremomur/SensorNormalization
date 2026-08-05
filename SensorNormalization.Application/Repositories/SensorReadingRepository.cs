@@ -23,7 +23,6 @@ public class SensorReadingRepository : ISensorReadingRepository
     public async Task<SensorReading?> GetLatestByTypeAsync(
         SensorType sensorType, CancellationToken cancellationToken)
     {
-        // O tipe ait en son (Time''a gore) kayit.
         return await _dbContext.SensorReadings
             .AsNoTracking()
             .Where(r => r.SensorType == sensorType)
@@ -34,8 +33,6 @@ public class SensorReadingRepository : ISensorReadingRepository
     public async Task<IReadOnlyList<SensorReading>> GetLatestPerTypeAsync(
         CancellationToken cancellationToken)
     {
-        // Her sensor tipi icin en son kayit. Tip sayisi az (3) oldugundan
-        // tip basina ayri "en son" sorgusu nettir ve hypertable index''ini kullanir.
         var result = new List<SensorReading>();
         foreach (SensorType type in Enum.GetValues<SensorType>())
         {
@@ -54,7 +51,6 @@ public class SensorReadingRepository : ISensorReadingRepository
         int pageSize,
         CancellationToken cancellationToken)
     {
-        // Temel sorgu: tip filtresi + opsiyonel tarih araligi.
         IQueryable<SensorReading> query = _dbContext.SensorReadings
             .AsNoTracking()
             .Where(r => r.SensorType == sensorType);
@@ -64,10 +60,8 @@ public class SensorReadingRepository : ISensorReadingRepository
         if (toUtc.HasValue)
             query = query.Where(r => r.Time <= toUtc.Value);
 
-        // Once toplam sayi (sayfalama meta verisi icin).
         int totalCount = await query.CountAsync(cancellationToken);
 
-        // Sonra sayfa: en yeni once, pageIndex/pageSize ile.
         var items = await query
             .OrderByDescending(r => r.Time)
             .Skip(pageIndex * pageSize)
@@ -75,5 +69,35 @@ public class SensorReadingRepository : ISensorReadingRepository
             .ToListAsync(cancellationToken);
 
         return (items, totalCount);
+    }
+
+    public async Task<(int Count, double? Min, double? Max, double? Average)> GetSummaryAsync(
+        SensorType sensorType,
+        DateTime? fromUtc,
+        DateTime? toUtc,
+        CancellationToken cancellationToken)
+    {
+        // Tip + opsiyonel tarih araligi filtresi.
+        IQueryable<SensorReading> query = _dbContext.SensorReadings
+            .AsNoTracking()
+            .Where(r => r.SensorType == sensorType);
+
+        if (fromUtc.HasValue)
+            query = query.Where(r => r.Time >= fromUtc.Value);
+        if (toUtc.HasValue)
+            query = query.Where(r => r.Time <= toUtc.Value);
+
+        int count = await query.CountAsync(cancellationToken);
+
+        // Kayit yoksa min/max/avg hesaplanamaz -> null dondur.
+        if (count == 0)
+            return (0, null, null, null);
+
+        // Toplama (aggregate) islemlerini veritabani yapar - hizli.
+        double min = await query.MinAsync(r => r.Value, cancellationToken);
+        double max = await query.MaxAsync(r => r.Value, cancellationToken);
+        double avg = await query.AverageAsync(r => r.Value, cancellationToken);
+
+        return (count, min, max, Math.Round(avg, 2));
     }
 }

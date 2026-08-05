@@ -14,15 +14,12 @@ public class SensorReadingService : Abstract.ISensorReadingService
         _repository = repository;
     }
 
-    // --- YAZMA ---
     public async Task SaveAsync(SensorReading reading, CancellationToken cancellationToken)
     {
-        // Kaydin sisteme islendigi an (UTC).
         reading.ReceivedAtUtc = DateTime.UtcNow;
         await _repository.AddAsync(reading, cancellationToken);
     }
 
-    // --- OKUMA ---
     public async Task<IReadOnlyList<SensorReadingDto>> GetLatestPerTypeAsync(
         CancellationToken cancellationToken)
     {
@@ -38,12 +35,8 @@ public class SensorReadingService : Abstract.ISensorReadingService
     }
 
     public async Task<PagedResult<SensorReadingDto>> GetHistoryAsync(
-        SensorType sensorType,
-        DateTime? fromUtc,
-        DateTime? toUtc,
-        int pageIndex,
-        int pageSize,
-        CancellationToken cancellationToken)
+        SensorType sensorType, DateTime? fromUtc, DateTime? toUtc,
+        int pageIndex, int pageSize, CancellationToken cancellationToken)
     {
         var (items, totalCount) = await _repository.GetHistoryAsync(
             sensorType, fromUtc, toUtc, pageIndex, pageSize, cancellationToken);
@@ -57,7 +50,25 @@ public class SensorReadingService : Abstract.ISensorReadingService
         };
     }
 
-    // Entity -> DTO donusumu (ic modeli dis dunyadan ayirir).
+    public async Task<SensorReadingSummaryDto> GetSummaryAsync(
+        SensorType sensorType, DateTime? fromUtc, DateTime? toUtc,
+        CancellationToken cancellationToken)
+    {
+        var (count, min, max, avg) = await _repository.GetSummaryAsync(
+            sensorType, fromUtc, toUtc, cancellationToken);
+
+        return new SensorReadingSummaryDto
+        {
+            SensorType = sensorType.ToString(),
+            Count = count,
+            Min = min,
+            Max = max,
+            Average = avg,
+            FromUtc = fromUtc,
+            ToUtc = toUtc
+        };
+    }
+
     private static SensorReadingDto MapToDto(SensorReading r) => new()
     {
         SensorId = r.SensorId,

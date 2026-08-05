@@ -16,8 +16,6 @@ public class SensorReadingsController : ControllerBase
         _service = service;
     }
 
-    // GET /api/sensor-readings/latest
-    // Her sensor tipi icin en son deger (dashboard ozeti).
     [HttpGet("latest")]
     [ProducesResponseType(typeof(IReadOnlyList<SensorReadingDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetLatestAll(CancellationToken cancellationToken)
@@ -26,8 +24,6 @@ public class SensorReadingsController : ControllerBase
         return Ok(result);
     }
 
-    // GET /api/sensor-readings/{sensorType}/latest
-    // Belirli tipin en son degeri.
     [HttpGet("{sensorType}/latest")]
     [ProducesResponseType(typeof(SensorReadingDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -35,7 +31,6 @@ public class SensorReadingsController : ControllerBase
     public async Task<IActionResult> GetLatestByType(
         string sensorType, CancellationToken cancellationToken)
     {
-        // Route''daki metni SensorType enum''una cevir. Gecersizse 400.
         if (!TryParseSensorType(sensorType, out SensorType parsedType))
             return BadRequest($"Gecersiz sensorType: {sensorType}. Beklenen: temperature, humidity, pressure.");
 
@@ -46,8 +41,6 @@ public class SensorReadingsController : ControllerBase
         return Ok(result);
     }
 
-    // GET /api/sensor-readings/{sensorType}/history?from=...&to=...&pageIndex=0&pageSize=50
-    // Sayfali gecmis (tarih araligi opsiyonel).
     [HttpGet("{sensorType}/history")]
     [ProducesResponseType(typeof(PagedResult<SensorReadingDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -61,24 +54,38 @@ public class SensorReadingsController : ControllerBase
     {
         if (!TryParseSensorType(sensorType, out SensorType parsedType))
             return BadRequest($"Gecersiz sensorType: {sensorType}. Beklenen: temperature, humidity, pressure.");
-
-        // Sayfalama dogrulama.
         if (pageIndex < 0)
             return BadRequest("pageIndex 0 veya daha buyuk olmali.");
         if (pageSize < 1 || pageSize > 500)
             return BadRequest("pageSize 1 ile 500 arasinda olmali.");
-
-        // Tarih araligi tutarliligi: from > to olamaz.
         if (from.HasValue && to.HasValue && from.Value > to.Value)
             return BadRequest("from, to''dan buyuk olamaz.");
 
         var result = await _service.GetHistoryAsync(
             parsedType, from, to, pageIndex, pageSize, cancellationToken);
-
         return Ok(result);
     }
 
-    // Route metnini (temperature/humidity/pressure) enum''a cevirir (buyuk/kucuk harf duyarsiz).
+    // GET /api/sensor-readings/{sensorType}/summary?from=...&to=...
+    // Araliktaki istatistik: adet, min, max, ortalama.
+    [HttpGet("{sensorType}/summary")]
+    [ProducesResponseType(typeof(SensorReadingSummaryDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetSummary(
+        string sensorType,
+        [FromQuery] DateTime? from,
+        [FromQuery] DateTime? to,
+        CancellationToken cancellationToken = default)
+    {
+        if (!TryParseSensorType(sensorType, out SensorType parsedType))
+            return BadRequest($"Gecersiz sensorType: {sensorType}. Beklenen: temperature, humidity, pressure.");
+        if (from.HasValue && to.HasValue && from.Value > to.Value)
+            return BadRequest("from, to''dan buyuk olamaz.");
+
+        var result = await _service.GetSummaryAsync(parsedType, from, to, cancellationToken);
+        return Ok(result);
+    }
+
     private static bool TryParseSensorType(string text, out SensorType sensorType)
         => Enum.TryParse(text, ignoreCase: true, out sensorType)
            && Enum.IsDefined(sensorType);
