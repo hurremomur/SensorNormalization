@@ -14,6 +14,16 @@ builder.Services.AddDbContext<SensorDbContext>(options =>
 builder.Services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
 builder.Services.AddScoped<ISensorReadingService, SensorReadingService>();
 
+// --- CORS: frontend (Vue, localhost:8080) API''yi cagirabilsin ---
+const string FrontendCors = "FrontendCors";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(FrontendCors, policy =>
+        policy.WithOrigins("http://localhost:8080")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 // --- Web API + Swagger ---
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -21,12 +31,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Gelistirme ortaminda Swagger arayuzu.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// CORS, MapControllers''dan once devreye girmeli.
+app.UseCors(FrontendCors);
 
 app.MapControllers();
 
