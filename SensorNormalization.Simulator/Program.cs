@@ -2,8 +2,6 @@
 using MassTransit;
 using SensorNormalization.Domain.Messages;
 
-// Her N mesajdan yaklaşık 1'i bilinçli olarak bozulur; böylece sonraki
-// fazlardaki hata yönetimi (parse/validation) mantığı test edilebilir.
 const int CorruptionRate = 5;
 
 var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
@@ -16,7 +14,7 @@ var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
 });
 
 await bus.StartAsync();
-Console.WriteLine("Simülatör başladı. Durdurmak için Ctrl+C.");
+Console.WriteLine("Simulator basladi. Durdurmak icin Ctrl+C.");
 
 using var cts = new CancellationTokenSource();
 Console.CancelKeyPress += (_, e) =>
@@ -32,24 +30,30 @@ try
         await PublishTemperatureAsync();
         await PublishHumidityAsync();
         await PublishPressureAsync();
+        await PublishLightAsync();
 
-        await Task.Delay(TimeSpan.FromSeconds(3), cts.Token);
+        await Task.Delay(TimeSpan.FromSeconds(5), cts.Token);
     }
 }
 catch (OperationCanceledException)
 {
-    // Ctrl+C ile normal (beklenen) çıkış.
 }
 finally
 {
     await bus.StopAsync();
-    Console.WriteLine("Simülatör durdu.");
+    Console.WriteLine("Simulator durdu.");
 }
 
-// Mesajların küçük, rastgele bir kısmı için true döner.
+// Bozuk (parse edilemez) veri tetikleyici.
 static bool ShouldCorrupt() => Random.Shared.Next(CorruptionRate) == 0;
 
-// Sıcaklık sensörü → JSON, Fahrenheit, Unix timestamp.
+// Duplicate mesaj tetikleyici.
+static bool ShouldDuplicate() => Random.Shared.Next(10) == 0;
+
+// Gecerli ama asiri (uc) deger tetikleyici -> istatistiksel anomali.
+static bool ShouldSpike() => Random.Shared.Next(20) == 0;
+
+// Sicaklik -> JSON, Fahrenheit, Unix timestamp.
 async Task PublishTemperatureAsync()
 {
     long unixTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -57,16 +61,25 @@ async Task PublishTemperatureAsync()
 
     if (ShouldCorrupt())
     {
-        // Bozuk: sayısal alan sayı yerine metin içeriyor.
         payload =
             $"{{\"sensor_id\":\"TEMP-01\"," +
             $"\"reading_fahrenheit\":\"NaN\"," +
             $"\"ts_unix\":{unixTimestamp}}}";
-        Console.WriteLine("  -> hatalı sıcaklık üretildi (geçersiz sayı)");
+        Console.WriteLine("  -> hatali sicaklik uretildi (gecersiz sayi)");
     }
     else
     {
-        double fahrenheit = Math.Round(60 + Random.Shared.NextDouble() * 40, 1);
+        double fahrenheit;
+        if (ShouldSpike())
+        {
+            // Gecerli ama uc: ~63C (145F) veya ~-7C (20F). Anomali beklenir.
+            fahrenheit = Random.Shared.Next(2) == 0 ? 145 : 20;
+            Console.WriteLine("  -> UC sicaklik uretildi (anomali beklenir)");
+        }
+        else
+        {
+            fahrenheit = Math.Round(60 + Random.Shared.NextDouble() * 40, 1);
+        }
         payload =
             $"{{\"sensor_id\":\"TEMP-01\"," +
             $"\"reading_fahrenheit\":{fahrenheit.ToString(CultureInfo.InvariantCulture)}," +
@@ -76,7 +89,7 @@ async Task PublishTemperatureAsync()
     await PublishAsync(SensorType.Temperature, PayloadFormat.Json, "TEMP-01", payload);
 }
 
-// Nem sensörü → XML, yüzde, yerel saat (+03:00).
+// Nem -> XML, yuzde, +03:00.
 async Task PublishHumidityAsync()
 {
     string timestamp = DateTimeOffset.UtcNow
@@ -86,17 +99,25 @@ async Task PublishHumidityAsync()
 
     if (ShouldCorrupt())
     {
-        // Bozuk: Percentage alanı tamamen eksik.
         payload =
             "<HumidityReading>" +
             "<DeviceId>HUM-03</DeviceId>" +
             $"<Timestamp>{timestamp}</Timestamp>" +
             "</HumidityReading>";
-        Console.WriteLine("  -> hatalı nem üretildi (eksik alan)");
+        Console.WriteLine("  -> hatali nem uretildi (eksik alan)");
     }
     else
     {
-        double percentage = Math.Round(30 + Random.Shared.NextDouble() * 60, 1);
+        double percentage;
+        if (ShouldSpike())
+        {
+            percentage = Random.Shared.Next(2) == 0 ? 99 : 3;
+            Console.WriteLine("  -> UC nem uretildi (anomali beklenir)");
+        }
+        else
+        {
+            percentage = Math.Round(30 + Random.Shared.NextDouble() * 60, 1);
+        }
         payload =
             "<HumidityReading>" +
             "<DeviceId>HUM-03</DeviceId>" +
@@ -108,7 +129,7 @@ async Task PublishHumidityAsync()
     await PublishAsync(SensorType.Humidity, PayloadFormat.Xml, "HUM-03", payload);
 }
 
-// Basınç sensörü → CSV, mbar, UTC.
+// Basinc -> CSV, mbar, UTC.
 async Task PublishPressureAsync()
 {
     string capturedAt = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
@@ -116,15 +137,23 @@ async Task PublishPressureAsync()
 
     if (ShouldCorrupt())
     {
-        // Bozuk: value kolonu boş.
         payload =
             "sensorId,value,unit,capturedAt\n" +
             $"PRES-02,,mbar,{capturedAt}";
-        Console.WriteLine("  -> hatalı basınç üretildi (boş değer)");
+        Console.WriteLine("  -> hatali basinc uretildi (bos deger)");
     }
     else
     {
-        double value = Math.Round(990 + Random.Shared.NextDouble() * 40, 2);
+        double value;
+        if (ShouldSpike())
+        {
+            value = Random.Shared.Next(2) == 0 ? 1080 : 920;
+            Console.WriteLine("  -> UC basinc uretildi (anomali beklenir)");
+        }
+        else
+        {
+            value = Math.Round(990 + Random.Shared.NextDouble() * 40, 2);
+        }
         payload =
             "sensorId,value,unit,capturedAt\n" +
             $"PRES-02,{value.ToString(CultureInfo.InvariantCulture)},mbar,{capturedAt}";
@@ -133,7 +162,42 @@ async Task PublishPressureAsync()
     await PublishAsync(SensorType.Pressure, PayloadFormat.Csv, "PRES-02", payload);
 }
 
-// Ham veriyi taşıma zarfına (envelope) sarıp yayınlar.
+// Isik -> JSON, lux, Unix timestamp. (4. sensor)
+async Task PublishLightAsync()
+{
+    long unixTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    string payload;
+
+    if (ShouldCorrupt())
+    {
+        payload =
+            $"{{\"sensor_id\":\"LIGHT-04\"," +
+            $"\"lux\":\"NaN\"," +
+            $"\"ts_unix\":{unixTimestamp}}}";
+        Console.WriteLine("  -> hatali isik uretildi (gecersiz sayi)");
+    }
+    else
+    {
+        double lux;
+        if (ShouldSpike())
+        {
+            lux = Random.Shared.Next(2) == 0 ? 5000 : 5;
+            Console.WriteLine("  -> UC isik uretildi (anomali beklenir)");
+        }
+        else
+        {
+            lux = Math.Round(100 + Random.Shared.NextDouble() * 900, 1);
+        }
+        payload =
+            $"{{\"sensor_id\":\"LIGHT-04\"," +
+            $"\"lux\":{lux.ToString(CultureInfo.InvariantCulture)}," +
+            $"\"ts_unix\":{unixTimestamp}}}";
+    }
+
+    await PublishAsync(SensorType.Light, PayloadFormat.Json, "LIGHT-04", payload);
+}
+
+// Ham veriyi zarfa sarip yayinlar.
 async Task PublishAsync(SensorType type, PayloadFormat format, string sensorId, string payload)
 {
     await bus.Publish(new SensorRawReadingMessage
@@ -144,6 +208,18 @@ async Task PublishAsync(SensorType type, PayloadFormat format, string sensorId, 
         Payload = payload,
         PublishedAtUtc = DateTime.UtcNow
     });
+    Console.WriteLine($"Yayinlandi -> {type} ({format})");
 
-    Console.WriteLine($"Yayınlandı -> {type} ({format})");
+    if (ShouldDuplicate())
+    {
+        await bus.Publish(new SensorRawReadingMessage
+        {
+            SensorId = sensorId,
+            SensorType = type,
+            Format = format,
+            Payload = payload,
+            PublishedAtUtc = DateTime.UtcNow
+        });
+        Console.WriteLine($"  -> tekrar mesaj (duplicate) -> {type}");
+    }
 }

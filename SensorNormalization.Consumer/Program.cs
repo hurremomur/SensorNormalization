@@ -21,6 +21,7 @@ builder.Services.AddScoped<ISensorReadingService, SensorReadingService>();
 builder.Services.AddSingleton<ISensorPayloadParser, JsonTemperatureParser>();
 builder.Services.AddSingleton<ISensorPayloadParser, XmlHumidityParser>();
 builder.Services.AddSingleton<ISensorPayloadParser, CsvPressureParser>();
+builder.Services.AddSingleton<ISensorPayloadParser, JsonLightParser>();
 builder.Services.AddSingleton<SensorPayloadParserFactory>();
 
 // --- MassTransit + RabbitMQ ---
@@ -38,8 +39,6 @@ builder.Services.AddMassTransit(x =>
 
         cfg.ReceiveEndpoint("sensor-readings-queue", e =>
         {
-            // GECICI hatalar icin retry: 3 deneme, artan aralikla (1s, 2s, 5s).
-            // Retry tukenirse mesaj otomatik "sensor-readings-queue_error" kuyruguna duser.
             e.UseMessageRetry(r => r.Intervals(
                 TimeSpan.FromSeconds(1),
                 TimeSpan.FromSeconds(2),

@@ -1,9 +1,8 @@
-using Microsoft.EntityFrameworkCore;
+ï»¿using Microsoft.EntityFrameworkCore;
 using SensorNormalization.Domain.Entities;
 
 namespace SensorNormalization.Application.Infrastructure.Contexts;
 
-// Uygulamanin veritabani ile konustugu koprü (EF Core DbContext).
 public class SensorDbContext : DbContext
 {
     public SensorDbContext(DbContextOptions<SensorDbContext> options)
@@ -18,8 +17,6 @@ public class SensorDbContext : DbContext
         var entity = modelBuilder.Entity<SensorReading>();
 
         entity.ToTable("sensor_readings");
-
-        // Composite PK: TimescaleDB hypertable partition kolonu (Time) PK''nin parcasi olmali.
         entity.HasKey(e => new { e.Id, e.Time });
 
         entity.Property(e => e.SensorType).HasConversion<string>().HasMaxLength(32);
@@ -29,6 +26,7 @@ public class SensorDbContext : DbContext
 
         entity.Property(e => e.Time);
         entity.Property(e => e.ReceivedAtUtc);
+        entity.Property(e => e.IsAnomaly);
 
         entity.HasIndex(e => e.Time);
     }

@@ -28,7 +28,7 @@ public class JsonTemperatureParserTests
         SensorReading result = _parser.Parse(msg);
 
         Assert.Equal(37, result.Value);
-        Assert.Equal("C", result.Unit);
+        Assert.Equal("\u00B0C", result.Unit);
         Assert.Equal(SensorType.Temperature, result.SensorType);
         Assert.Equal("TEMP-01", result.SensorId);
     }

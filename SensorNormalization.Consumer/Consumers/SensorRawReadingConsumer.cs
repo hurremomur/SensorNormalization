@@ -25,16 +25,15 @@ public class SensorRawReadingConsumer : IConsumer<SensorRawReadingMessage>
     public async Task Consume(ConsumeContext<SensorRawReadingMessage> context)
     {
         var message = context.Message;
-
         SensorReading reading;
 
         // --- 1) KALICI HATA BOLGESI: parse/normalize ---
         // Bozuk veri retry ile duzelmez. Hatayi burada yakalayip loglariz ve
-        // mesaji "tuketildi" sayariz (retry'a sokmayiz). Boyle mesajlar isteniyorsa
-        // ayri bir gecersiz-veri kuyruguna da yonlendirilebilir.
+        // mesaji "tuketildi" sayariz (retry'a sokmayiz).
         try
         {
-            ISensorPayloadParser parser = _parserFactory.GetParser(message.Format);
+            // Format etiketine bak; belirsizse icerikten tespit et (odev 4 bonus).
+            ISensorPayloadParser parser = _parserFactory.GetParserFor(message);
             reading = parser.Parse(message);
             reading.RawPayload = message.Payload;
         }

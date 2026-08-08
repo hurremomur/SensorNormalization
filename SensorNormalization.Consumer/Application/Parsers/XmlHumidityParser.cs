@@ -12,6 +12,7 @@ namespace SensorNormalization.Consumer.Application.Parsers;
 public class XmlHumidityParser : ISensorPayloadParser
 {
     public PayloadFormat Format => PayloadFormat.Xml;
+    public SensorType SensorType => SensorType.Humidity;
 
     public SensorReading Parse(SensorRawReadingMessage message)
     {

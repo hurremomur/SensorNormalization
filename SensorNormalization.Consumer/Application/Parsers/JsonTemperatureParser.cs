@@ -9,6 +9,7 @@ namespace SensorNormalization.Consumer.Application.Parsers;
 public class JsonTemperatureParser : ISensorPayloadParser
 {
     public PayloadFormat Format => PayloadFormat.Json;
+    public SensorType SensorType => SensorType.Temperature;
 
     public SensorReading Parse(SensorRawReadingMessage message)
     {
@@ -45,7 +46,7 @@ public class JsonTemperatureParser : ISensorPayloadParser
             SensorId = sensorId,
             SensorType = SensorType.Temperature,
             Value = celsius,
-            Unit = "C",
+            Unit = "\u00B0C",
             Time = timestampUtc,
             SourceFormat = PayloadFormat.Json
         };

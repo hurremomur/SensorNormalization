@@ -12,17 +12,13 @@ public interface ISensorReadingRepository
     Task<IReadOnlyList<SensorReading>> GetLatestPerTypeAsync(CancellationToken cancellationToken);
 
     Task<(IReadOnlyList<SensorReading> Items, int TotalCount)> GetHistoryAsync(
-        SensorType sensorType,
-        DateTime? fromUtc,
-        DateTime? toUtc,
-        int pageIndex,
-        int pageSize,
-        CancellationToken cancellationToken);
+        SensorType sensorType, DateTime? fromUtc, DateTime? toUtc,
+        int pageIndex, int pageSize, CancellationToken cancellationToken);
 
-    // Belirli tipin araliktaki istatistigi: adet, min, max, ortalama.
     Task<(int Count, double? Min, double? Max, double? Average)> GetSummaryAsync(
-        SensorType sensorType,
-        DateTime? fromUtc,
-        DateTime? toUtc,
-        CancellationToken cancellationToken);
+        SensorType sensorType, DateTime? fromUtc, DateTime? toUtc, CancellationToken cancellationToken);
+
+    // Istatistiksel anomali icin: bir tipin son N degerini (en yeni once) getirir.
+    Task<IReadOnlyList<double>> GetRecentValuesAsync(
+        SensorType sensorType, int count, CancellationToken cancellationToken);
 }

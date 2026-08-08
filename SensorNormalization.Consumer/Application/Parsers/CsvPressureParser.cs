@@ -11,6 +11,7 @@ namespace SensorNormalization.Consumer.Application.Parsers;
 public class CsvPressureParser : ISensorPayloadParser
 {
     public PayloadFormat Format => PayloadFormat.Csv;
+    public SensorType SensorType => SensorType.Pressure;
 
     public SensorReading Parse(SensorRawReadingMessage message)
     {

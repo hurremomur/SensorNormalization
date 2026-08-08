@@ -1,5 +1,6 @@
 ﻿using SensorNormalization.Application.Dto;
 using SensorNormalization.Application.Repositories;
+using SensorNormalization.Application.Services;
 using SensorNormalization.Domain.Entities;
 using SensorNormalization.Domain.Messages;
 
@@ -8,6 +9,7 @@ namespace SensorNormalization.Application.Services.Concrete;
 public class SensorReadingService : Abstract.ISensorReadingService
 {
     private readonly ISensorReadingRepository _repository;
+    private const int AnomalyWindow = 50;
 
     public SensorReadingService(ISensorReadingRepository repository)
     {
@@ -17,6 +19,12 @@ public class SensorReadingService : Abstract.ISensorReadingService
     public async Task SaveAsync(SensorReading reading, CancellationToken cancellationToken)
     {
         reading.ReceivedAtUtc = DateTime.UtcNow;
+
+        // Istatistiksel anomali: bu tipin son N degerine gore 3-sigma disi mi?
+        var recent = await _repository.GetRecentValuesAsync(
+            reading.SensorType, AnomalyWindow, cancellationToken);
+        reading.IsAnomaly = AnomalyDetector.IsAnomaly(recent, reading.Value);
+
         await _repository.AddAsync(reading, cancellationToken);
     }
 
@@ -76,6 +84,8 @@ public class SensorReadingService : Abstract.ISensorReadingService
         Value = r.Value,
         Unit = r.Unit,
         Time = r.Time,
-        SourceFormat = r.SourceFormat.ToString()
+        SourceFormat = r.SourceFormat.ToString(),
+        RawPayload = r.RawPayload,
+        IsAnomaly = r.IsAnomaly
     };
 }

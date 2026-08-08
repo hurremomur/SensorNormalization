@@ -77,7 +77,6 @@ public class SensorReadingRepository : ISensorReadingRepository
         DateTime? toUtc,
         CancellationToken cancellationToken)
     {
-        // Tip + opsiyonel tarih araligi filtresi.
         IQueryable<SensorReading> query = _dbContext.SensorReadings
             .AsNoTracking()
             .Where(r => r.SensorType == sensorType);
@@ -89,15 +88,27 @@ public class SensorReadingRepository : ISensorReadingRepository
 
         int count = await query.CountAsync(cancellationToken);
 
-        // Kayit yoksa min/max/avg hesaplanamaz -> null dondur.
         if (count == 0)
             return (0, null, null, null);
 
-        // Toplama (aggregate) islemlerini veritabani yapar - hizli.
         double min = await query.MinAsync(r => r.Value, cancellationToken);
         double max = await query.MaxAsync(r => r.Value, cancellationToken);
         double avg = await query.AverageAsync(r => r.Value, cancellationToken);
 
         return (count, min, max, Math.Round(avg, 2));
+    }
+
+    // Istatistiksel anomali icin: bir tipin son N degerini (en yeni once) getirir.
+    // Yalnizca Value kolonu cekilir (hafif sorgu).
+    public async Task<IReadOnlyList<double>> GetRecentValuesAsync(
+        SensorType sensorType, int count, CancellationToken cancellationToken)
+    {
+        return await _dbContext.SensorReadings
+            .AsNoTracking()
+            .Where(r => r.SensorType == sensorType)
+            .OrderByDescending(r => r.Time)
+            .Take(count)
+            .Select(r => r.Value)
+            .ToListAsync(cancellationToken);
     }
 }
