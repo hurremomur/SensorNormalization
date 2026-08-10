@@ -1,4 +1,5 @@
-﻿using MassTransit;
+﻿using System.Reflection;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using SensorNormalization.Consumer.Application.Parsers;
 using SensorNormalization.Application.Repositories;
@@ -17,11 +18,19 @@ builder.Services.AddDbContext<SensorDbContext>(options =>
 builder.Services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
 builder.Services.AddScoped<ISensorReadingService, SensorReadingService>();
 
-// --- Parser kayitlari (Strategy deseni) ---
-builder.Services.AddSingleton<ISensorPayloadParser, JsonTemperatureParser>();
-builder.Services.AddSingleton<ISensorPayloadParser, XmlHumidityParser>();
-builder.Services.AddSingleton<ISensorPayloadParser, CsvPressureParser>();
-builder.Services.AddSingleton<ISensorPayloadParser, JsonLightParser>();
+// --- Parser kayitlari: OTOMATIK KESIF (assembly scanning) ---
+// ISensorPayloadParser'i uygulayan tum somut siniflar reflection ile bulunur
+// ve otomatik kaydedilir. Yeni bir parser eklemek icin bu dosyaya dokunmak
+// GEREKMEZ; parser sinifini yazmak yeterlidir (Open/Closed).
+var parserTypes = Assembly.GetExecutingAssembly()
+    .GetTypes()
+    .Where(t => typeof(ISensorPayloadParser).IsAssignableFrom(t)
+                && !t.IsInterface
+                && !t.IsAbstract);
+
+foreach (var type in parserTypes)
+    builder.Services.AddSingleton(typeof(ISensorPayloadParser), type);
+
 builder.Services.AddSingleton<SensorPayloadParserFactory>();
 
 // --- MassTransit + RabbitMQ ---

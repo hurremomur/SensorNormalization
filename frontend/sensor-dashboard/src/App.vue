@@ -242,18 +242,31 @@ export default {
       return [];
     },
     cardColor(type) {
-      if (type === "Temperature") return "#e53935";
-      if (type === "Humidity") return "#1e88e5";
-      if (type === "Pressure") return "#43a047";
-      if (type === "Light") return "#f9a825";
-      return "#0d1b3e";
+      // Bilinen tipler icin ozel renkler
+      const known = {
+        Temperature: "#e53935",
+        Humidity: "#1e88e5",
+        Pressure: "#43a047",
+        Light: "#f9a825"
+      };
+      if (known[type]) return known[type];
+      // Bilinmeyen yeni tip: adindan otomatik, tutarli bir renk uret (hash tabanli)
+      let hash = 0;
+      for (let i = 0; i < type.length; i++) {
+        hash = type.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const hue = Math.abs(hash) % 360;
+      return `hsl(${hue}, 55%, 45%)`;
     },
     cardIcon(type) {
-      if (type === "Temperature") return "mdi-thermometer";
-      if (type === "Humidity") return "mdi-water-percent";
-      if (type === "Pressure") return "mdi-gauge";
-      if (type === "Light") return "mdi-lightbulb-on";
-      return "mdi-chart-line";
+      // Bilinen tipler icin ozel ikonlar; bilinmeyen tip icin genel sensor ikonu
+      const known = {
+        Temperature: "mdi-thermometer",
+        Humidity: "mdi-water-percent",
+        Pressure: "mdi-gauge",
+        Light: "mdi-lightbulb-on"
+      };
+      return known[type] || "mdi-access-point";
     }
   }
 };
