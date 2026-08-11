@@ -1,0 +1,11 @@
+﻿{
+  "configurableSensors": [
+    {
+      "sensorType": "Sound",
+      "sensorIdField": "sensor_id",
+      "valueField": "decibel",
+      "timestampField": "ts_unix",
+      "unit": "dB"
+    }
+  ]
+}
