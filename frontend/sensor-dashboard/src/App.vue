@@ -757,7 +757,7 @@ export default {
 
     formatTime(iso) {
       return iso
-        ? new Date(iso).toLocaleString("tr-TR")
+        ? new Date(iso).toLocaleString("tr-TR", { timeZone: "UTC" })
         : "";
     },
 
