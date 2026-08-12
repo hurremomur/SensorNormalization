@@ -9,5 +9,5 @@ public class SensorRawReadingMessage
     public DateTime PublishedAtUtc { get; set; }
 }
 
-public enum SensorType { Temperature, Humidity, Pressure, Light, Sound }
+public enum SensorType { Temperature, Humidity, Pressure, Light}
 public enum PayloadFormat { Json, Xml, Csv }

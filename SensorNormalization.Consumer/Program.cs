@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using SensorNormalization.Consumer.Application.Parsers;
 using SensorNormalization.Application.Repositories;
 using SensorNormalization.Application.Services.Abstract;
@@ -20,33 +19,17 @@ builder.Services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
 builder.Services.AddScoped<ISensorReadingService, SensorReadingService>();
 
 // --- Parser kayitlari: OTOMATIK KESIF (assembly scanning) ---
-// ISensorPayloadParser'i uygulayan somut siniflar reflection ile bulunur.
-// ConfigurableJsonParser haric tutulur; cunku o, parametresiz olusturulamaz
-// (bir config tanimi ister) ve asagida config'den ayrica uretilir.
+// ISensorPayloadParser'i uygulayan tum somut siniflar reflection ile bulunur
+// ve otomatik kaydedilir. Yeni bir parser eklemek icin bu dosyaya dokunmak
+// GEREKMEZ; parser sinifini yazmak yeterlidir (Open/Closed).
 var parserTypes = Assembly.GetExecutingAssembly()
     .GetTypes()
     .Where(t => typeof(ISensorPayloadParser).IsAssignableFrom(t)
                 && !t.IsInterface
-                && !t.IsAbstract
-                && t != typeof(ConfigurableJsonParser));
+                && !t.IsAbstract);
 
 foreach (var type in parserTypes)
     builder.Services.AddSingleton(typeof(ISensorPayloadParser), type);
-
-// --- Config-driven parser'lar: sensor-config.json'dan uretilir (kod yazmadan) ---
-// Basit sensorler icin yeni bir parser sinifi yazmak yerine, config dosyasina
-// bir tanim eklemek yeterlidir. Her tanim icin bir ConfigurableJsonParser uretilir.
-var configPath = Path.Combine(AppContext.BaseDirectory, "sensor-config.json");
-if (File.Exists(configPath))
-{
-    var json = File.ReadAllText(configPath);
-    var options = JsonConvert.DeserializeObject<ConfigurableSensorOptions>(json);
-    if (options is not null)
-    {
-        foreach (var def in options.ConfigurableSensors)
-            builder.Services.AddSingleton<ISensorPayloadParser>(new ConfigurableJsonParser(def));
-    }
-}
 
 builder.Services.AddSingleton<SensorPayloadParserFactory>();
 

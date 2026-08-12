@@ -31,7 +31,6 @@ try
         await PublishHumidityAsync();
         await PublishPressureAsync();
         await PublishLightAsync();
-        await PublishSoundAsync();
 
         await Task.Delay(TimeSpan.FromSeconds(5), cts.Token);
     }
@@ -197,41 +196,6 @@ async Task PublishLightAsync()
 
     await PublishAsync(SensorType.Light, PayloadFormat.Json, "LIGHT-04", payload);
 }
-// Ses/gurultu sensoru -> JSON, dB, Unix timestamp. (5. sensor tipi)
-async Task PublishSoundAsync()
-{
-    long unixTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-    string payload;
-
-    if (ShouldCorrupt())
-    {
-        payload =
-            $"{{\"sensor_id\":\"SOUND-05\"," +
-            $"\"decibel\":\"NaN\"," +
-            $"\"ts_unix\":{unixTimestamp}}}";
-        Console.WriteLine("  -> hatali ses uretildi (gecersiz sayi)");
-    }
-    else
-    {
-        double decibel;
-        if (ShouldSpike())
-        {
-            decibel = Random.Shared.Next(2) == 0 ? 115 : 25;
-            Console.WriteLine("  -> UC ses uretildi (anomali beklenir)");
-        }
-        else
-        {
-            decibel = Math.Round(45 + Random.Shared.NextDouble() * 30, 1);
-        }
-        payload =
-            $"{{\"sensor_id\":\"SOUND-05\"," +
-            $"\"decibel\":{decibel.ToString(CultureInfo.InvariantCulture)}," +
-            $"\"ts_unix\":{unixTimestamp}}}";
-    }
-
-    await PublishAsync(SensorType.Sound, PayloadFormat.Json, "SOUND-05", payload);
-}
-
 // Ham veriyi zarfa sarip yayinlar.
 async Task PublishAsync(SensorType type, PayloadFormat format, string sensorId, string payload)
 {

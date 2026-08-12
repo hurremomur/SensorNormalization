@@ -24,9 +24,4 @@
     <ProjectReference Include="..\SensorNormalization.Domain\SensorNormalization.Domain.csproj" />
     <ProjectReference Include="..\SensorNormalization.Application\SensorNormalization.Application.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Update="sensor-config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 </Project>
